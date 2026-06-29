@@ -15,7 +15,7 @@ Streakify is a lightweight command-line tool written in Go that generates a GitH
 Clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/streakify.git
+git clone https://github.com/DuttaNeel07/streakify.git
 cd streakify
 ```
 
