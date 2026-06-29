@@ -38,7 +38,7 @@ func scanGitFolders(folders []string, folder string) []string{
 		if file.IsDir(){
 			path = folder + "/" + file.Name()
 			if file.Name() == ".git" {
-				path = strings.TrimSuffix(path, "./git")
+				path = strings.TrimSuffix(path, "/.git")
 				fmt.Println(path)
 				folders = append(folders, path)
 				continue
@@ -70,13 +70,19 @@ func getDotFilePath() string{
 	return dotFile
 }
 
-func addNewSliceElementsToFile(filepath string, newRepos []string){
-	existingRepos:= parseFileLinestoSlice(filepath)
+func dumpStringsSliceToFile(repos []string, filePath string) {
+	content := strings.Join(repos, "\n")
+	os.WriteFile(filePath, []byte(content), 0755)
+}
+
+func addNewSliceElementsToFile(filePath string, newRepos []string){
+	existingRepos:= parseFileLinestoSlice(filePath)
 	repos := joinSlices(newRepos, existingRepos)
+	dumpStringsSliceToFile(repos, filePath)
 }
 
 func parseFileLinestoSlice(filepath string) []string{
-	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE, 0644)
 	defer f.Close()
 	if err != nil{
 		log.Fatal(err)

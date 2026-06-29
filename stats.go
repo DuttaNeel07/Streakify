@@ -4,8 +4,17 @@ import (
 	"fmt"
 	"sort"
 	"time"
-	"github.com/go-git/go-git/v6"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
+
+
+const outOfRange = 99999
+const daysInLastSixMonths = 183
+const weeksInLastSixMonths = 26
+
+type column[]int
+
 func stats(email string){
 	commits := processRepositories(email)
 	printCommitStats(commits)
@@ -15,7 +24,7 @@ func stats(email string){
 func processRepositories(email string) map[int]int{
 	filepath:= getDotFilePath()
 	repos:= parseFileLinestoSlice(filepath)
-	daysInMap := daysinLastSixMonths
+	daysInMap := daysInLastSixMonths
 
 
 	commit := make(map[int]int, daysInMap)
@@ -29,7 +38,7 @@ func processRepositories(email string) map[int]int{
 	return commit
 }
 
-func fillCommits(email string, path string, commits map[int]int) map[int]int{
+func fillCommits(email string, path string, commit map[int]int) map[int]int{
 	repo, err := git.PlainOpen(path)
 
 	if err != nil{
@@ -41,17 +50,21 @@ func fillCommits(email string, path string, commits map[int]int) map[int]int{
 	if err != nil{
 		panic(err)
 	}
+	iterator, err := repo.Log(&git.LogOptions{From: ref.Hash()})
+	if err != nil {
+		panic(err)
+	}
 
 	offset := calcOffset()
-	err = iterator.forEach(func(c *object.Commit) error{
+	err = iterator.ForEach(func(c *object.Commit) error{
 		daysAgo:= countDaysSinceDate(c.Author.When) + offset
 		
-		if c.Author.email != email{
+		if c.Author.Email != email{
 			return nil
 		}
 
 		if daysAgo != outOfRange {
-			commits[daysAgo]++
+			commit[daysAgo]++
 		}
 
 		return nil
@@ -71,11 +84,11 @@ func getBeginningofDay(t time.Time) time.Time{
 
 func countDaysSinceDate(date time.Time) int{
 	days:= 0
-	now:= getBeginningofDay(time.now())
+	now:= getBeginningofDay(time.Now())
 	for date.Before(now){
-		date = date.Add(time.hour * 24)
+		date = date.Add(time.Hour * 24)
 		days++
-		if days > daysinLastSixMonths{
+		if days > daysInLastSixMonths{
 			return outOfRange
 		}
 	}
@@ -84,7 +97,7 @@ func countDaysSinceDate(date time.Time) int{
 
 func calcOffset()int{
 	var offset int
-	weekday:= time.Now.weekday()
+	weekday:= time.Now().Weekday()
 
 	switch weekday{
 	case time.Sunday:
@@ -108,7 +121,7 @@ func calcOffset()int{
 
 func printCommitStats(commits map[int]int){
 	keys:= sortMapIntoSlice(commits)
-	cols:= builCols(keys, commits)
+	cols:= buildCols(keys, commits)
 	printCells(cols)
 }
 
@@ -169,7 +182,7 @@ func printCells(cols map[int]column) {
 	}
 }
 func printMonths() {
-	week := getBeginningOfDay(time.Now()).Add(-(daysInLastSixMonths * time.Hour * 24))
+	week := getBeginningofDay(time.Now()).Add(-(daysInLastSixMonths * time.Hour * 24))
 	month := week.Month()
 	fmt.Printf("         ")
 	for {
