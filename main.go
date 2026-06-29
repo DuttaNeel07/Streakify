@@ -1,17 +1,8 @@
 package main
 
 import(
-	"flag";
- 	"fmt"
+	"flag"
 )
-
-func scan(path string){
-	fmt.Printf(path)
-}
-
-func stats(email string){
-	fmt.Printf(email)
-}
 
 func main(){
 
