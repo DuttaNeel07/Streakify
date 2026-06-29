@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
@@ -51,6 +50,7 @@ func scanGitFolders(folders []string, folder string) []string{
 			
 		}
 	}
+	return folders
 }
 //This function is used to pass in an empty slice along with folder to start the scanGitFolders() function
 func recursiveScanFolder(folder string) []string{
@@ -76,8 +76,11 @@ func addNewSliceElementsToFile(filepath string, newRepos []string){
 }
 
 func parseFileLinestoSlice(filepath string) []string{
-	f := os.OpenFile(filepath)
+	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	defer f.Close()
+	if err != nil{
+		log.Fatal(err)
+	}
 
 	var lines []string
 	scanner := bufio.NewScanner(f)
