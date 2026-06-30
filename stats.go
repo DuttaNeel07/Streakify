@@ -45,10 +45,12 @@ func fillCommits(email string, path string, commit map[int]int) map[int]int{
 		panic(err)
 	}
 
-	ref,err := repo.Head()
+	fmt.Println("Opening:", path)
 
-	if err != nil{
-		panic(err)
+	ref, err := repo.Head()
+	if err != nil {
+		fmt.Printf("Failed to get HEAD for %s: %v\n", path, err)
+		return commit
 	}
 	iterator, err := repo.Log(&git.LogOptions{From: ref.Hash()})
 	if err != nil {
