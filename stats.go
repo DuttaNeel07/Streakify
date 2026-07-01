@@ -204,17 +204,22 @@ func printMonths() {
 }
 
 func printDayCol(day int) {
-	out := "     "
-	switch day {
-	case 1:
-		out = " Mon "
-	case 3:
-		out = " Wed "
-	case 5:
-		out = " Fri "
-	}
-
-	fmt.Printf(out)
+    switch day {
+    case 0:
+        fmt.Print(" Mon ")
+    case 1:
+        fmt.Print(" Tue ")
+    case 2:
+        fmt.Print(" Wed ")
+    case 3:
+        fmt.Print(" Thu ")
+    case 4:
+        fmt.Print(" Fri ")
+    case 5:
+        fmt.Print(" Sat ")
+    case 6:
+        fmt.Print(" Sun ")
+    }
 }
 
 func printCell(val int, today bool) {
